@@ -1,9 +1,8 @@
+
 <?php
 
 /**
  * Classe Bibliotheque : gere une collection de livres.
- *
- * Tableau prive de Livre. Methodes : ajouter, trouver, tous, compter, rechercher.
  */
 class Bibliotheque
 {
@@ -12,19 +11,19 @@ class Bibliotheque
 
     /**
      * Ajoute un livre a la bibliotheque.
-     * @throws Exception si un livre avec le meme ISBN existe deja
+     * @throws Exception si le livre existe deja
      */
     public function ajouter(Livre $l): void
     {
         if ($this->trouver($l->getIsbn()) !== null) {
             throw new Exception("Un livre avec l'ISBN {$l->getIsbn()} existe deja.");
         }
+
         $this->livres[] = $l;
     }
 
     /**
      * Trouve un livre par son ISBN.
-     * @return Livre|null Le livre trouve ou null
      */
     public function trouver(string $isbn): ?Livre
     {
@@ -33,6 +32,7 @@ class Bibliotheque
                 return $livre;
             }
         }
+
         return null;
     }
 
@@ -46,7 +46,7 @@ class Bibliotheque
     }
 
     /**
-     * Compte le nombre de livres.
+     * Compte le nombre total de livres.
      */
     public function compter(): int
     {
@@ -54,18 +54,50 @@ class Bibliotheque
     }
 
     /**
-     * Recherche des livres par mot-cle dans le titre ou l'auteur (insensible a la casse).
+     * Recherche des livres par titre ou auteur.
      * @return Livre[]
      */
     public function rechercher(string $mot): array
     {
         $resultats = [];
+
         foreach ($this->livres as $livre) {
-            if (stripos($livre->getTitre(), $mot) !== false
-                || stripos($livre->getAuteur(), $mot) !== false) {
+            if (
+                stripos($livre->getTitre(), $mot) !== false
+                || stripos($livre->getAuteur(), $mot) !== false
+            ) {
                 $resultats[] = $livre;
             }
         }
+
         return $resultats;
+    }
+
+    /**
+     * Calcule les statistiques du catalogue.
+     */
+    public function statistiques(): array
+    {
+        $total = $this->compter();
+        $disponibles = 0;
+
+        foreach ($this->livres as $livre) {
+            if ($livre->estDisponible()) {
+                $disponibles++;
+            }
+        }
+
+        $empruntes = $total - $disponibles;
+
+        $taux = $total > 0
+            ? ($disponibles / $total) * 100
+            : 0;
+
+        return [
+            'total' => $total,
+            'disponibles' => $disponibles,
+            'empruntes' => $empruntes,
+            'taux_disponibilite' => $taux
+        ];
     }
 }

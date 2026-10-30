@@ -47,10 +47,11 @@ class Bibliotheque
 
     /**
      * Compte le nombre total de livres.
+     * REGRESSION VOLONTAIRE pour tester la CI.
      */
     public function compter(): int
     {
-        return count($this->livres);
+        return count($this->livres) + 1;
     }
 
     /**
